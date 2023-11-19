@@ -2,7 +2,7 @@
 import sqlite3 as sq
 import bcrypt
 import jwt 
-import time
+from datetime import datetime, timedelta, timezone
 #---setup---
 con = sq.connect("database.db")
 setcursor = con.cursor()
@@ -28,8 +28,12 @@ def sign_in():
      password_check = input("Enter your password:")
      result = setcursor.execute("SELECT * FROM User WHERE id=?;", [text])
      mate = result.fetchone()
-     data = {"username":mate[0],
-             "email":mate[2]}
+     data = {
+        "username":mate[0],
+        "email":mate[2],
+        "exp": (datetime.now(tz=timezone.utc)+timedelta(0, 30))
+     }
+     print(data)
      encoded_jwt = jwt.encode(data, "secret", algorithm="HS256") 
      if mate and bcrypt.checkpw(password_check.encode('utf-8'), mate[1]):
          print("Sign up successful!")
